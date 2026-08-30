@@ -77,6 +77,47 @@ public class Gym {
         return waiting.toString();
     }
 
+    public LinkedList<Person> findByName(String name) {
+        LinkedList<Person> found = new LinkedList<>();
+        inside.forEach(person -> {
+            if (person.getName().equals(name)) {
+                found.insertBack(person);
+            }
+        });
+        return found;
+    }
+
+    public Person findById(String id) {
+        return inside.findFirst(person -> person.getId().equals(id));
+    }
+
+    public LinkedList<Person> findByGrade(Grade grade) {
+        LinkedList<Person> found = new LinkedList<>();
+        inside.forEach(person -> {
+            if (person.getGrade() == grade) {
+                found.insertBack(person);
+            }
+        });
+        return found;
+    }
+
+    public String incidentsByUrgencyString() {
+        return incidents.toString();
+    }
+
+    public String incidentsByGradeString() {
+        LinkedList<Incident> prepa = new LinkedList<>();
+        LinkedList<Incident> uni = new LinkedList<>();
+        incidents.forEachFromTop(incident -> {
+            if (incident.getPerson().getGrade() == Grade.PREPA) {
+                prepa.insertBack(incident);
+            } else {
+                uni.insertBack(incident);
+            }
+        });
+        return "PREPA:\n" + prepa + "\nUNI:\n" + uni;
+    }
+
     private boolean containsId(String id) {
         if (inside.findFirst(person -> person.getId().equals(id)) != null) {
             return true;

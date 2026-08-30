@@ -136,4 +136,30 @@ class GymTest {
         assertNull(gym.resolveIncident());
         assertNull(gym.peekIncident());
     }
+
+    @Test
+    void findByNameIdAndGrade() {
+        gym.arrive(new Person("Ana", "A001", Grade.PREPA));
+        gym.arrive(new Person("Ana", "A002", Grade.UNI));
+        assertEquals("[A001:Ana:PREPA -> A002:Ana:UNI]", gym.findByName("Ana").toString());
+        assertEquals("A002", gym.findById("A002").getId());
+        assertNull(gym.findById("NOPE"));
+        assertEquals("[A001:Ana:PREPA]", gym.findByGrade(Grade.PREPA).toString());
+        assertEquals("[]", gym.findByName("Nadie").toString());
+    }
+
+    @Test
+    void incidentReportsUseUrgencyAndGrade() {
+        gym.arrive(new Person("Ana", "A001", Grade.PREPA));
+        gym.arrive(new Person("Luis", "A002", Grade.UNI));
+        gym.reportIncident("A001", "primero");
+        gym.reportIncident("A002", "segundo");
+        gym.reportIncident("A001", "tercero");
+        assertEquals(
+                "[A001:Ana:PREPA - tercero -> A002:Luis:UNI - segundo -> A001:Ana:PREPA - primero]",
+                gym.incidentsByUrgencyString());
+        assertEquals(
+                "PREPA:\n[A001:Ana:PREPA - tercero -> A001:Ana:PREPA - primero]\nUNI:\n[A002:Luis:UNI - segundo]",
+                gym.incidentsByGradeString());
+    }
 }
