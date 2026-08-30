@@ -47,6 +47,24 @@ public class Gym {
         return waiting.removeFirst(person -> person.getId().equals(id));
     }
 
+    public Incident reportIncident(String id, String description) {
+        Person person = inside.findFirst(candidate -> candidate.getId().equals(id));
+        if (person == null) {
+            return null;
+        }
+        Incident incident = new Incident(description, person);
+        incidents.push(incident);
+        return incident;
+    }
+
+    public Incident resolveIncident() {
+        return incidents.pop();
+    }
+
+    public Incident peekIncident() {
+        return incidents.peek();
+    }
+
     public Person waitingFront() {
         return waiting.front();
     }

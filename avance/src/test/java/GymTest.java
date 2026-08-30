@@ -101,4 +101,39 @@ class GymTest {
     void cancelWaitUnknownIdReturnsNull() {
         assertNull(gym.cancelWait("NOPE"));
     }
+
+    @Test
+    void reportIncidentRequiresThePersonToBeInside() {
+        gym.arrive(new Person("Ana", "A001", Grade.PREPA));
+        gym.arrive(new Person("Luis", "A002", Grade.UNI));
+        gym.arrive(new Person("Mia", "A003", Grade.PREPA));
+        assertNull(gym.reportIncident("A003", "caida"));
+        Incident reported = gym.reportIncident("A001", "caida");
+        assertEquals("A001:Ana:PREPA - caida", reported.toString());
+        assertEquals("A001:Ana:PREPA - caida", gym.peekIncident().toString());
+    }
+
+    @Test
+    void incidentSnapshotSurvivesLeave() {
+        gym.arrive(new Person("Ana", "A001", Grade.PREPA));
+        gym.reportIncident("A001", "caida");
+        gym.leave("A001");
+        Incident top = gym.peekIncident();
+        assertEquals("A001:Ana:PREPA - caida", top.toString());
+        assertEquals("A001", top.getPerson().getId());
+        assertEquals("[]", gym.insideString());
+    }
+
+    @Test
+    void resolveIncidentPopsTheTop() {
+        gym.arrive(new Person("Ana", "A001", Grade.PREPA));
+        gym.arrive(new Person("Luis", "A002", Grade.UNI));
+        gym.reportIncident("A001", "primero");
+        gym.reportIncident("A002", "segundo");
+        assertEquals("A002:Luis:UNI - segundo", gym.resolveIncident().toString());
+        assertEquals("A001:Ana:PREPA - primero", gym.peekIncident().toString());
+        assertEquals("A001:Ana:PREPA - primero", gym.resolveIncident().toString());
+        assertNull(gym.resolveIncident());
+        assertNull(gym.peekIncident());
+    }
 }
