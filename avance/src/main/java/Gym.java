@@ -43,6 +43,10 @@ public class Gym {
         return new LeaveResult(LeaveResult.Status.LEFT_AND_ENTERED, left, entered);
     }
 
+    public Person cancelWait(String id) {
+        return waiting.removeFirst(person -> person.getId().equals(id));
+    }
+
     public Person waitingFront() {
         return waiting.front();
     }

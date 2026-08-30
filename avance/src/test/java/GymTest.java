@@ -64,4 +64,41 @@ class GymTest {
         assertEquals(Gym.LeaveResult.Status.NOT_INSIDE, result.getStatus());
         assertNull(result.getLeft());
     }
+
+    @Test
+    void duplicateIdInsideIsRejected() {
+        gym.arrive(new Person("Ana", "A001", Grade.PREPA));
+        Gym.ArriveResult result = gym.arrive(new Person("Otra", "A001", Grade.UNI));
+        assertEquals(Gym.ArriveResult.Status.DUPLICATE, result.getStatus());
+        assertEquals("[A001:Ana:PREPA]", gym.insideString());
+        assertEquals("[]", gym.waitingString());
+    }
+
+    @Test
+    void duplicateIdInQueueIsRejected() {
+        gym.arrive(new Person("Ana", "A001", Grade.PREPA));
+        gym.arrive(new Person("Luis", "A002", Grade.UNI));
+        gym.arrive(new Person("Mia", "A003", Grade.PREPA));
+        Gym.ArriveResult result = gym.arrive(new Person("Otra", "A003", Grade.UNI));
+        assertEquals(Gym.ArriveResult.Status.DUPLICATE, result.getStatus());
+        assertEquals("[A003:Mia:PREPA]", gym.waitingString());
+    }
+
+    @Test
+    void cancelWaitRemovesMiddleAndDoesNotAutoEnter() {
+        gym.arrive(new Person("Ana", "A001", Grade.PREPA));
+        gym.arrive(new Person("Luis", "A002", Grade.UNI));
+        gym.arrive(new Person("Mia", "A003", Grade.PREPA));
+        gym.arrive(new Person("Paco", "A004", Grade.UNI));
+        Person removed = gym.cancelWait("A003");
+        assertEquals("A003", removed.getId());
+        assertEquals("A004", gym.waitingFront().getId());
+        assertEquals("[A001:Ana:PREPA -> A002:Luis:UNI]", gym.insideString());
+        assertEquals("[A004:Paco:UNI]", gym.waitingString());
+    }
+
+    @Test
+    void cancelWaitUnknownIdReturnsNull() {
+        assertNull(gym.cancelWait("NOPE"));
+    }
 }
